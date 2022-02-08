@@ -158,23 +158,23 @@ export class MaskService extends MaskApplierService {
 			backspaced,
 			cb,
 		);
-    if (formElement === this._getActiveElement()) {
+		if (formElement === this._getActiveElement()) {
 			return;
 		}
 		this.clearIfNotMatchFn();
 	}
 
-  /**
-   * Recursively determine the current active element by navigating the Shadow DOM until the Active Element is found.
-   */
-  private _getActiveElement(document: DocumentOrShadowRoot = this.document): Element | null {
-    const shadowRootEl = document?.activeElement?.shadowRoot;
-    if (!shadowRootEl?.activeElement) {
-      return document.activeElement;
-    } else {
-      return this._getActiveElement(shadowRootEl);
-    }
-  }
+	/**
+	 * Recursively determine the current active element by navigating the Shadow DOM until the Active Element is found.
+	 */
+	private _getActiveElement(document: DocumentOrShadowRoot = this.document): Element | null {
+		const shadowRootEl = document?.activeElement?.shadowRoot;
+		if (!shadowRootEl?.activeElement) {
+			return document.activeElement;
+		} else {
+			return this._getActiveElement(shadowRootEl);
+		}
+	}
 
 	public hideInput(inputValue: string, maskExpression: string): string {
 		return inputValue

@@ -1,18 +1,20 @@
 import {
 	ControlValueAccessor,
-	FormControl,
 	NG_VALIDATORS,
 	NG_VALUE_ACCESSOR,
 	ValidationErrors,
 	Validator,
+	FormControl,
 } from '@angular/forms';
 import {
 	Directive,
+	EventEmitter,
 	forwardRef,
 	HostListener,
 	Inject,
 	Input,
 	OnChanges,
+	Output,
 	SimpleChanges,
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
@@ -36,6 +38,7 @@ import { MaskService } from './mask.service';
 		},
 		MaskService,
 	],
+	exportAs: 'mask,ngxMask',
 })
 export class MaskDirective implements ControlValueAccessor, OnChanges, Validator {
 	// eslint-disable-next-line @angular-eslint/no-input-rename
@@ -74,6 +77,10 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 	@Input() public allowNegativeNumbers: IConfig['allowNegativeNumbers'] | null = null;
 
 	@Input() public leadZeroDateTime: IConfig['leadZeroDateTime'] | null = null;
+
+	@Input() public triggerOnMaskChange: IConfig['triggerOnMaskChange'] | null = null;
+
+	@Output() public maskFilled: IConfig['maskFilled'] = new EventEmitter<void>();
 
 	private _maskValue: string = '';
 
@@ -121,6 +128,7 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 			separatorLimit,
 			allowNegativeNumbers,
 			leadZeroDateTime,
+			triggerOnMaskChange,
 		} = changes;
 		if (maskExpression) {
 			if (
@@ -135,9 +143,7 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 					.sort((a: string, b: string) => {
 						return a.length - b.length;
 					});
-				this._maskValue = this._maskExpressionArray[0]!;
-				this.maskExpression = this._maskExpressionArray[0]!;
-				this._maskService.maskExpression = this._maskExpressionArray[0]!;
+				this._setMask();
 			} else {
 				this._maskExpressionArray = [];
 				this._maskValue = maskExpression.currentValue || '';
@@ -204,6 +210,9 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 		}
 		if (leadZeroDateTime) {
 			this._maskService.leadZeroDateTime = leadZeroDateTime.currentValue;
+		}
+		if (triggerOnMaskChange) {
+			this._maskService.triggerOnMaskChange = triggerOnMaskChange.currentValue;
 		}
 		this._applyMask();
 	}
@@ -284,6 +293,10 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 				}
 			}
 		}
+		if (value) {
+			this.maskFilled.emit();
+			return null;
+		}
 		return null;
 	}
 
@@ -295,7 +308,7 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 	@HostListener('ngModelChange', ['$event'])
 	public onModelChange(value: any): void {
 		// on form reset we need to update the actualValue
-		if (!value && this._maskService.actualValue) {
+		if ((value === '' || value === null || value === undefined) && this._maskService.actualValue) {
 			this._maskService.actualValue = this._maskService.getActualValue('');
 		}
 	}
@@ -395,7 +408,6 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 			!el.value || el.value === this._maskService.prefix
 				? this._maskService.prefix + this._maskService.maskIsShown
 				: el.value;
-
 		/** Fix of cursor position jumping to end in most browsers no matter where cursor is inserted onFocus */
 		if (el.value !== nextValue) {
 			el.value = nextValue;
@@ -409,7 +421,6 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 			el.selectionStart = this._maskService.prefix.length;
 			return;
 		}
-
 		/** select only inserted text */
 		if ((el.selectionEnd as number) > this._getActualInputLength()) {
 			el.selectionEnd = this._getActualInputLength();
@@ -512,9 +523,9 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 			inputValue = inputValue.value;
 		}
 
-		if (typeof inputValue === 'number') {
+		if (typeof inputValue === 'number' || this._maskValue.startsWith('separator')) {
 			// eslint-disable-next-line no-param-reassign
-			inputValue = String(inputValue);
+			inputValue = this._maskService.numberToString(inputValue);
 			if (!Array.isArray(this.decimalMarker)) {
 				// eslint-disable-next-line no-param-reassign
 				inputValue =
@@ -557,6 +568,15 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 
 	public registerOnTouched(fn: any): void {
 		this.onTouch = fn;
+	}
+
+	private _getActiveElement(document: DocumentOrShadowRoot = this.document): Element | null {
+		const shadowRootEl = document?.activeElement?.shadowRoot;
+		if (!shadowRootEl?.activeElement) {
+			return document.activeElement;
+		} else {
+			return this._getActiveElement(shadowRootEl);
+		}
 	}
 
 	public checkSelectionOnDeletion(el: HTMLInputElement): void {

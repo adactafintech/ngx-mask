@@ -124,13 +124,46 @@ describe('Directive: Mask', () => {
 		equal('(123) 456-ABCDE', '(123) 456-ABCD', fixture);
 		equal('(123) 456-ABCD1', '(123) 456-ABCD', fixture);
 	});
-
-	it('Masks with ip', () => {
-		component.mask = '099.099.099.099';
-		equal('1.1.1.1', '1.1.1.1', fixture);
-		equal('12.1.12.1', '12.1.12.1', fixture);
-		equal('127.001.1.1', '127.001.1.1', fixture);
-		equal('192.168.1.78', '192.168.1.78', fixture);
+	describe('Masks with ip', () => {
+		it('should correct', () => {
+			component.mask = 'IP';
+			equal('1.1.1.1', '1.1.1.1', fixture);
+			equal('12.1.12.1', '12.1.12.1', fixture);
+			equal('127.001.1.1', '127.001.1.1', fixture);
+			equal('192.168.1.78', '192.168.1.78', fixture);
+		});
+		it('form should be invalid', () => {
+			component.mask = 'IP';
+			equal('192.168.1.78', '192.168.1.78', fixture);
+			expect(component.form.valid).toBeTrue();
+			equal('127.001.1.1', '127.001.1.1', fixture);
+			expect(component.form.valid).toBeTrue();
+			equal('12.1.12.1', '12.1.12.1', fixture);
+			expect(component.form.valid).toBeTrue();
+			equal('1.1.1.1', '1.1.1.1', fixture);
+			expect(component.form.valid).toBeTrue();
+		});
+		it('form should be valid', () => {
+			component.mask = 'IP';
+			equal('1.1.1.', '1.1.1.', fixture);
+			expect(component.form.valid).toBeFalse();
+			equal('12.1.12', '12.1.12', fixture);
+			expect(component.form.valid).toBeFalse();
+			equal('127.1.', '127.1.', fixture);
+			expect(component.form.valid).toBeFalse();
+			equal('192.168', '192.168', fixture);
+			expect(component.form.valid).toBeFalse();
+			equal('192', '192', fixture);
+			expect(component.form.valid).toBeFalse();
+			equal('1', '1', fixture);
+			expect(component.form.valid).toBeFalse();
+			equal('', '', fixture);
+			expect(component.form.valid).toBeFalse();
+			equal('256.2.3.1', '256.2.3.1', fixture);
+			expect(component.form.valid).toBeFalse();
+			equal('255.900.300.1', '255.900.300.1', fixture);
+			expect(component.form.valid).toBeFalse();
+		});
 	});
 
 	it('Masks with cpf', () => {
@@ -276,6 +309,19 @@ describe('Directive: Mask', () => {
 		equal('(12) 3456-7890', '(12) 3456-7890', fixture);
 		equal('(12) 3 4567-8901', '(12) 3 4567-8901', fixture);
 		equal('ab(ds123da-s_d4567dasds8901', '(12) 3 4567-8901', fixture);
+	});
+
+	it('Mask with optional numbers and 2 decimals', () => {
+		component.mask = '9999.00';
+		equal('.', '.', fixture);
+		equal('1.23', '1.23', fixture);
+		equal('.23', '.23', fixture);
+		equal('1', '1', fixture);
+		equal('12', '12', fixture);
+		equal('123', '123', fixture);
+		equal('1234', '1234', fixture);
+		equal('12345', '1234.5', fixture);
+		equal('123456', '1234.56', fixture);
 	});
 
 	it('Masks with numbers, strings e special characters #2 ', () => {
@@ -456,5 +502,76 @@ describe('Directive: Mask', () => {
 			target: inputTarget,
 		});
 		equal('(', '', fixture);
+	});
+
+	it('should remove ghost character on toggling mask', () => {
+		component.mask = '0000';
+		component.form.setValue('1111a');
+		equal('1111a', '1111', fixture);
+		expect(component.form.value).toBe('1111');
+		component.mask = undefined!;
+		expect(component.form.value).toBe('1111');
+	});
+
+	it('Masks with letters uppercase', () => {
+		component.mask = 'UUUU';
+		fixture.detectChanges();
+		equal('A', 'A', fixture);
+		equal('AB', 'AB', fixture);
+		equal('ABC', 'ABC', fixture);
+		equal('ABCD', 'ABCD', fixture);
+	});
+
+	it('Masks with letters lowercase', () => {
+		component.mask = 'LLLL';
+		fixture.detectChanges();
+		equal('a', 'a', fixture);
+		equal('ab', 'ab', fixture);
+		equal('abc', 'abc', fixture);
+		equal('abcd', 'abcd', fixture);
+	});
+	it('0.0000004 after writeValue should be 0.0000004', () => {
+		component.mask = 'separator.7';
+		fixture.detectChanges();
+		component.form.setValue(0.0000004);
+		equal('0.0000004', '0.0000004', fixture);
+		expect(component.form.value).toBe(0.0000004);
+	});
+	it('mask 0000 0000 0000 9999 9999', () => {
+		component.mask = '0000 0000 0000 9999 9999';
+		equal('1', '1', fixture);
+		equal('12', '12', fixture);
+		equal('123', '123', fixture);
+		equal('1234', '1234', fixture);
+		equal('12345', '1234 5', fixture);
+		equal('123456', '1234 56', fixture);
+		equal('1234567', '1234 567', fixture);
+		equal('12345678', '1234 5678', fixture);
+		equal('123456789', '1234 5678 9', fixture);
+		equal('1234567890', '1234 5678 90', fixture);
+		equal('12345678901', '1234 5678 901', fixture);
+		equal('123456789012', '1234 5678 9012', fixture);
+		equal('1234567890123', '1234 5678 9012 3', fixture);
+		equal('12345678901234', '1234 5678 9012 34', fixture);
+		equal('123456789012345', '1234 5678 9012 345', fixture);
+		equal('1234567890123456', '1234 5678 9012 3456', fixture);
+		equal('12345678901234567', '1234 5678 9012 3456 7', fixture);
+		equal('123456789012345678', '1234 5678 9012 3456 78', fixture);
+		equal('1234567890123456789', '1234 5678 9012 3456 789', fixture);
+		equal('12345678901234567890', '1234 5678 9012 3456 7890', fixture);
+		equal('1234 5678 9012 3456', '1234 5678 9012 3456', fixture);
+	});
+	it('mask SS00 AAAA 0000 0000 0000 0000 9999 9999 99', () => {
+		component.mask = 'SS00 AAAA 0000 0000 0000 0000 9999 9999 99';
+		equal(
+			'FR12345678901234567890123456789012',
+			'FR12 3456 7890 1234 5678 9012 3456 7890 12',
+			fixture,
+		);
+		equal(
+			'FR12 3456 7890 1234 5678 9012 3456 7890',
+			'FR12 3456 7890 1234 5678 9012 3456 7890',
+			fixture,
+		);
 	});
 });

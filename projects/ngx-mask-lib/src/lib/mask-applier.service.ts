@@ -104,8 +104,8 @@ export class MaskApplierService {
 		}
 		const inputArray: string[] = inputValue.toString().split('');
 		if (maskExpression === 'IP') {
-			this.ipError =
-				inputArray.filter((i: string) => i === '.').length < 3 && inputArray.length < 7;
+			const valuesIP = inputValue.split('.');
+			this.ipError = this._validIP(valuesIP);
 			// eslint-disable-next-line no-param-reassign
 			maskExpression = '099.099.099.099';
 		}
@@ -396,6 +396,9 @@ export class MaskApplierService {
 					}
 					result += inputSymbol;
 					cursor++;
+				} else if (inputSymbol === ' ' && maskExpression[cursor] === ' ') {
+					result += inputSymbol;
+					cursor++;
 				} else if (this.maskSpecialCharacters.indexOf(maskExpression[cursor]!) !== -1) {
 					result += maskExpression[cursor];
 					cursor++;
@@ -410,7 +413,8 @@ export class MaskApplierService {
 						!!inputArray[cursor] &&
 						maskExpression !== '099.099.099.099' &&
 						maskExpression !== '000.000.000-00' &&
-						maskExpression !== '00.000.000/0000-00'
+						maskExpression !== '00.000.000/0000-00' &&
+						!maskExpression.match(/^9+\.0+$/)
 					) {
 						result += inputArray[cursor];
 					}
@@ -455,7 +459,12 @@ export class MaskApplierService {
 			newPosition++;
 		}
 
-		let actualShift: number = justPasted ? cursor : this._shift.has(position) ? shift : 0;
+		let actualShift: number =
+			justPasted && !maskExpression.startsWith('separator')
+				? cursor
+				: this._shift.has(position)
+				? shift
+				: 0;
 		if (stepBack) {
 			actualShift--;
 		}
@@ -630,5 +639,17 @@ export class MaskApplierService {
 		return Array.isArray(comparedValue)
 			? comparedValue.filter((v) => v !== excludedValue).includes(value)
 			: value === comparedValue;
+	}
+
+	private _validIP(valuesIP: string[]): boolean {
+		return !(
+			valuesIP.length === 4 &&
+			!valuesIP.some((value: string, index: number) => {
+				if (valuesIP.length !== index + 1) {
+					return value === '' || Number(value) > 255;
+				}
+				return value === '' || Number(value.substring(0, 3)) > 255;
+			})
+		);
 	}
 }

@@ -1,3 +1,142 @@
+### Fix
+
+- Fix ([#1017](https://github.com/JsDaddy/ngx-mask/issues/1017))
+
+<a name="14.0.3"></a>
+
+# 14.0.3(2022-06-21)
+
+### Fix
+
+- Fix ([#1008](https://github.com/JsDaddy/ngx-mask/issues/1008))
+
+<a name="14.0.2"></a>
+
+# 14.0.2(2022-06-09)
+
+- Fix ([#688](https://github.com/JsDaddy/ngx-mask/issues/688))
+
+<a name="14.0.1"></a>
+
+# 14.0.1(2022-06-06)
+
+<a name="14.0.0"></a>
+
+# 14.0.0(2022-06-05)
+
+### Feature
+
+- Update to Angular 14
+
+<a name="13.1.15"></a>
+
+# 13.1.15(2022-05-29)
+
+### Fix
+
+- Fix ([#648](https://github.com/JsDaddy/ngx-mask/issues/648))
+
+<a name="13.1.14"></a>
+
+# 13.1.14(2022-05-17)
+
+### Fix
+
+- Fix ([#984](https://github.com/JsDaddy/ngx-mask/issues/984))
+
+<a name="13.1.13"></a>
+
+# 13.1.13(2022-05-09)
+
+### Fix
+
+- Fix ([#915](https://github.com/JsDaddy/ngx-mask/issues/915))
+
+<a name="13.1.12"></a>
+
+# 13.1.12(2022-04-27)
+
+### Fix
+
+- Fixed issue where active elements within a shadowRoot would not be found by mask
+- Fix ([#909](https://github.com/JsDaddy/ngx-mask/issues/909))
+
+<a name="13.1.11"></a>
+
+# 13.1.11 (2022-04-25)
+
+### Fix
+
+- Fix ([#1000](https://github.com/JsDaddy/ngx-mask/issues/1000))
+
+<a name="13.1.10"></a>
+
+# 13.1.10 (2022-04-18)
+
+### Fix
+
+- Fix ([#948](https://github.com/JsDaddy/ngx-mask/issues/948))
+
+<a name="13.1.9"></a>
+
+# 13.1.9 (2022-04-13)
+
+### Fix
+
+- Fix ([#923](https://github.com/JsDaddy/ngx-mask/pull/923))
+
+<a name="13.1.8"></a>
+
+# 13.1.8 (2022-04-08)
+
+### Feature
+
+- Added lowercase and uppercase mask support
+- Feature ([#947](https://github.com/JsDaddy/ngx-mask/issues/947))
+
+<a name="13.1.6"></a>
+
+# 13.1.6 (2022-04-04)
+
+### Fix
+
+- Ghost characters shown in input when toggling mask on/off
+- Fix ([#897](https://github.com/JsDaddy/ngx-mask/issues/897))
+
+<a name="13.1.5"></a>
+
+# 13.1.5 (2022-04-03)
+
+### Fix
+
+- Fixed ([#848](https://github.com/JsDaddy/ngx-mask/issues/848))
+
+<a name="13.1.4"></a>
+
+# 13.1.4 (2022-03-30)
+
+### Feature
+
+- Function maskFilled is added
+- Feature ([#917](https://github.com/JsDaddy/ngx-mask/issues/917))
+
+<a name="13.1.3"></a>
+
+# 13.1.3 (2022-03-28)
+
+### Features and fixes
+
+feature ([#940](https://github.com/JsDaddy/ngx-mask/issues/940))
+Fixed ([#965](https://github.com/JsDaddy/ngx-mask/issues/965))
+
+<a name="13.1.2"></a>
+
+# 13.1.2 (2022-01-20)
+
+### Features
+
+- added triggerOnMaskChange, allow mask change to trigger onChange
+
 <a name="13.1.1"></a>
 
 # 13.1.1 (2022-01-12)
@@ -19,7 +158,7 @@
 ### Test/CI fixes
 
 - Enable cypress component testing
-  
+
 <a name="13.0.1"></a>
 
 # 13.0.1 (2021-12-15)

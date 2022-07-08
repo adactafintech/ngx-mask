@@ -26,6 +26,8 @@ export class MaskService extends MaskApplierService {
 
 	public maskChanged: boolean = false;
 
+	public triggerOnMaskChange: boolean = false;
+
 	public onChange = (_: any) => {};
 
 	public constructor(
@@ -47,7 +49,7 @@ export class MaskService extends MaskApplierService {
 		cb: Function = () => {},
 	): string {
 		if (!maskExpression) {
-			return inputValue;
+			return inputValue !== this.actualValue ? this.actualValue : inputValue;
 		}
 		this.maskIsShown = this.showMaskTyped ? this.showMaskInInput() : '';
 		if (this.maskExpression === 'IP' && this.showMaskTyped) {
@@ -63,7 +65,7 @@ export class MaskService extends MaskApplierService {
 		const getSymbol: string | undefined =
 			!!inputValue && typeof this.selStart === 'number' ? inputValue[this.selStart] : '';
 		let newInputValue = '';
-		if (this.hiddenInput && !this.writingValue) {
+		if (this.hiddenInput !== undefined && !this.writingValue) {
 			let actualResult: string[] = this.actualValue.split('');
 			// eslint-disable  @typescript-eslint/no-unused-expressions
 			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -89,6 +91,7 @@ export class MaskService extends MaskApplierService {
 					: inputValue;
 		}
 		newInputValue = Boolean(newInputValue) && newInputValue.length ? newInputValue : inputValue;
+
 		const result: string = super.applyMask(
 			newInputValue,
 			maskExpression,
@@ -97,8 +100,8 @@ export class MaskService extends MaskApplierService {
 			backspaced,
 			cb,
 		);
-		this.actualValue = this.getActualValue(result);
 
+		this.actualValue = this.getActualValue(result);
 		// handle some separator implications:
 		// a.) adjust decimalMarker default (. -> ,) if thousandSeparator is a dot
 		if (this.thousandSeparator === '.' && this.decimalMarker === '.') {
@@ -144,7 +147,7 @@ export class MaskService extends MaskApplierService {
 	}
 
 	public applyValueChanges(
-		position: number = 0,
+		position: number,
 		justPasted: boolean,
 		backspaced: boolean,
 		cb: Function = () => {},
@@ -229,6 +232,21 @@ export class MaskService extends MaskApplierService {
 				})) ||
 			[];
 		return newInputValue.join('');
+	}
+
+	/**
+	 * Convert number value to string
+	 * 3.1415 -> '3.1415'
+	 * 1e-7 -> '0.0000001'
+	 */
+	public numberToString(value: number | string): string {
+		if (!value && value !== 0) {
+			return String(value);
+		}
+		return Number(value).toLocaleString('fullwide', {
+			useGrouping: false,
+			maximumFractionDigits: 20,
+		});
 	}
 
 	public showMaskInInput(inputVal?: string): string {
@@ -357,6 +375,18 @@ export class MaskService extends MaskApplierService {
 	}
 
 	/**
+	 * Recursively determine the current active element by navigating the Shadow DOM until the Active Element is found.
+	 */
+	private _getActiveElement(document: DocumentOrShadowRoot = this.document): Element | null {
+		const shadowRootEl = document?.activeElement?.shadowRoot;
+		if (!shadowRootEl?.activeElement) {
+			return document.activeElement;
+		} else {
+			return this._getActiveElement(shadowRootEl);
+		}
+	}
+
+	/**
 	 * Propogates the input value back to the Angular model by triggering the onChange function. It won't do this if writingValue
 	 * is true. If that is true it means we are currently in the writeValue function, which is supposed to only update the actual
 	 * DOM element based on the Angular model value. It should be a one way process, i.e. writeValue should not be modifying the Angular
@@ -364,7 +394,7 @@ export class MaskService extends MaskApplierService {
 	 * @param inputValue the current form input value
 	 */
 	private formControlResult(inputValue: string): void {
-		if (this.writingValue || this.maskChanged) {
+		if (this.writingValue || (!this.triggerOnMaskChange && this.maskChanged)) {
 			this.maskChanged = false;
 			return;
 		}

@@ -50,7 +50,7 @@ Import **ngx-mask** module in Angular app.
 ```typescript
 import { NgxMaskModule, IConfig } from 'ngx-mask'
 
-export const options: Partial<IConfig> | (() => Partial<IConfig>) = null;
+export const options: Partial<null|IConfig> | (() => Partial<IConfig>) = null;
 
 @NgModule({
   imports: [
@@ -130,6 +130,8 @@ For separator you can add thousandSeparator
 | 000.000.000-99 | 048.457.987-98 |
 | AAAA           | 0F6g           |
 | SSSS           | asDF           |
+| UUUU           | ASDF           |
+| LLLL           | asdf           |
 
 ## Mask Options
 
@@ -181,6 +183,8 @@ We have next default patterns:
 | **9** | digits (like 0 to 9 numbers), but optional  |
 | **A** | letters (uppercase or lowercase) and digits |
 | **S** | only letters (uppercase or lowercase)       |
+| **U** | only letters uppercase                      |
+| **L** | only letters lowercase                      |
 
 ##### Usage
 
@@ -495,4 +499,12 @@ You can pass into mask pattern with `||`.
 
 ```html
 <input mask="(00) 0000-0000||(00) 0 0000-0000" />
+```
+
+### Function maskFilled
+
+#### Usage
+
+```html
+<input mask="0000" (maskFilled)="maskFilled()" />
 ```

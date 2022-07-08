@@ -1,10 +1,27 @@
 import { mount } from '@jscutlery/cypress-angular/mount';
-import {
-	CypressTestMaskComponent,
-	CypressTestMaskModule,
-} from './utils/cypress-test-component.component';
+import { CypressTestMaskComponent } from './utils/cypress-test-component.component';
+import { CypressTestMaskShadowDomComponent } from './utils/cypress-test-shadow-dom.component';
+import { CypressTestMaskModule } from './utils/cypress-test.module';
 
 describe('Directive: Mask (Delete)', () => {
+	it('cursor should correct delete with ViewEncapsulation.ShadowDom showMaskTyped=true', () => {
+		mount(CypressTestMaskShadowDomComponent, {
+			inputs: {
+				showMaskTyped: true,
+				mask: '(000) 000-0000',
+			},
+			imports: [CypressTestMaskModule],
+		});
+
+		cy.get('input#masked')
+			.type('1231231234')
+			.focus()
+			.setSelectionRange(9, 1)
+			.type('{backspace}')
+			.type('{backspace}')
+			.should('have.value', '12312312');
+	});
+
 	it('should delete character in input', () => {
 		mount(CypressTestMaskComponent, {
 			inputs: {
@@ -13,13 +30,12 @@ describe('Directive: Mask (Delete)', () => {
 			imports: [CypressTestMaskModule],
 		});
 
-		const inputTarget = cy.get('input');
-		inputTarget.type('12/34/5678');
-		inputTarget.focus();
-		inputTarget.setSelectionRange(1, 1);
-		inputTarget.type('{backspace}');
-
-		inputTarget.should('have.value', '23/45/678');
+		cy.get('input#masked')
+			.type('12/34/5678')
+			.focus()
+			.setSelectionRange(1, 1)
+			.type('{backspace}')
+			.should('have.value', '23/45/678');
 	});
 
 	it('should not delete special mask character', () => {
@@ -30,13 +46,12 @@ describe('Directive: Mask (Delete)', () => {
 			imports: [CypressTestMaskModule],
 		});
 
-		const inputTarget = cy.get('input');
-		inputTarget.type('12/34/5678');
-		inputTarget.setSelectionRange(3, 3);
-		inputTarget.type('{backspace}');
-
-		inputTarget.should('have.value', '12/34/5678');
-		inputTarget.should('have.prop', 'selectionStart', 2);
+		cy.get('input#masked')
+			.type('12/34/5678')
+			.setSelectionRange(3, 3)
+			.type('{backspace}')
+			.should('have.value', '12/34/5678')
+			.should('have.prop', 'selectionStart', 2);
 	});
 
 	it('should delete secure character', () => {
@@ -48,13 +63,12 @@ describe('Directive: Mask (Delete)', () => {
 			imports: [CypressTestMaskModule],
 		});
 
-		const inputTarget = cy.get('input');
-		inputTarget.type('123/45/6789');
-		inputTarget.setSelectionRange(3, 3);
-		inputTarget.type('{backspace}');
-
-		inputTarget.should('have.value', '***/*6/789');
-		inputTarget.should('have.prop', 'selectionStart', 2);
+		cy.get('input#masked')
+			.type('123/45/6789')
+			.setSelectionRange(3, 3)
+			.type('{backspace}')
+			.should('have.value', '***/*6/789')
+			.should('have.prop', 'selectionStart', 2);
 	});
 
 	it('should not delete prefix', () => {
@@ -66,13 +80,12 @@ describe('Directive: Mask (Delete)', () => {
 			imports: [CypressTestMaskModule],
 		});
 
-		const inputTarget = cy.get('input');
-		inputTarget.type('1234');
-		inputTarget.setSelectionRange(3, 3);
-		inputTarget.type('{backspace}');
-
-		inputTarget.should('have.value', '+1 (12) 34');
-		inputTarget.should('have.prop', 'selectionStart', 3);
+		cy.get('input#masked')
+			.type('1234')
+			.setSelectionRange(3, 3)
+			.type('{backspace}')
+			.should('have.value', '+1 (12) 34')
+			.should('have.prop', 'selectionStart', 3);
 	});
 
 	it('should delete selection', () => {
@@ -83,12 +96,11 @@ describe('Directive: Mask (Delete)', () => {
 			imports: [CypressTestMaskModule],
 		});
 
-		const inputTarget = cy.get('input');
-		inputTarget.type('123456789');
-		inputTarget.setSelectionRange(4, 7);
-		inputTarget.type('{backspace}');
-
-		inputTarget.should('have.value', '123 789');
-		inputTarget.should('have.prop', 'selectionStart', 3);
+		cy.get('input#masked')
+			.type('123456789')
+			.setSelectionRange(4, 7)
+			.type('{backspace}')
+			.should('have.value', '123 789')
+			.should('have.prop', 'selectionStart', 3);
 	});
 });

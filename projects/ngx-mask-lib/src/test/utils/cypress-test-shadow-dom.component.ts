@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
 @Component({
+	encapsulation: ViewEncapsulation.ShadowDom,
 	selector: 'mask-cypress-test-mask',
 	template: `
 		<input
@@ -13,7 +14,7 @@ import { FormControl } from '@angular/forms';
 		/>
 	`,
 })
-export class CypressTestMaskComponent {
+export class CypressTestMaskShadowDomComponent {
 	@Input() public mask!: string | null;
 
 	@Input() public hiddenInput: boolean = false;

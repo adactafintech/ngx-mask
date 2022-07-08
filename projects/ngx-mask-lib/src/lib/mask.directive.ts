@@ -102,11 +102,11 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 		@Inject(DOCUMENT) private document: any,
 		public _maskService: MaskService,
 		@Inject(config) protected _config: IConfig,
-	) {}
+	) { }
 
-	public onChange = (_: any) => {};
+	public onChange = (_: any) => { };
 
-	public onTouch = () => {};
+	public onTouch = () => { };
 
 	public ngOnChanges(changes: SimpleChanges): void {
 		const {
@@ -267,7 +267,7 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 			if (
 				this._maskValue.indexOf('{') === 1 &&
 				value.toString().length ===
-					this._maskValue.length + Number(this._maskValue.split('{')[1]!.split('}')[0]) - 4
+				this._maskValue.length + Number(this._maskValue.split('{')[1]!.split('}')[0]) - 4
 			) {
 				return null;
 			}
@@ -285,8 +285,8 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 			if (this._maskValue.indexOf('*') === -1 || this._maskValue.indexOf('?') === -1) {
 				const length: number = this._maskService.dropSpecialCharacters
 					? this._maskValue.length -
-					  this._maskService.checkSpecialCharAmount(this._maskValue) -
-					  counterOfOpt
+					this._maskService.checkSpecialCharAmount(this._maskValue) -
+					counterOfOpt
 					: this._maskValue.length - counterOfOpt;
 				if (value.toString().length < length) {
 					return this._createValidationError(value);
@@ -672,18 +672,6 @@ export class MaskDirective implements ControlValueAccessor, OnChanges, Validator
 						this._maskExpressionArray[this._maskExpressionArray.length - 1]!;
 				}
 			});
-		}
-	}
-
-	/**
-	 * Recursively determine the current active element by navigating the Shadow DOM until the Active Element is found.
-	 */
-	private _getActiveElement(document: DocumentOrShadowRoot = this.document): Element | null {
-		const shadowRootEl = document?.activeElement?.shadowRoot;
-		if (!shadowRootEl?.activeElement) {
-			return document.activeElement;
-		} else {
-			return this._getActiveElement(shadowRootEl);
 		}
 	}
 }
